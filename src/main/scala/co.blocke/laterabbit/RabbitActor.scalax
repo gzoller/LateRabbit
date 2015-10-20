@@ -1,0 +1,31 @@
+// Technique modified from this article: http://blog.scalac.io/2014/06/23/akka-streams-and-rabbitmq.html
+
+
+
+class RabbitMessage(val deliveryTag: Long, val body: ByteString, channel: Channel) {
+	def ack() : Unit = channel.basicAck(deliveryTag, false)
+	def nack(): Unit = channel.basicNack(deliveryTag, false, true)
+}
+
+class RabbitConsumerActor(channel:Channel, queueName:String) extends ActorPublisher[RabbitMessage] {
+	val consumer = new DefaultConsumer(channel) {
+		override def handleDelivery(
+			consumerTag : String,
+			envelope    : Envelope,
+			properites  : AMQP.BasicProperties,
+			body        : Array[Byte]) = {
+			self ! new RabbitMessage(envelope.getDeliveryTag(), ByteString(body), channel)
+		}
+	}
+
+	// Register ourselves please
+	channel.basicConsume(queueName, false, consumer)
+
+	override def receive = {
+		case msg:RabbitMessage =>
+			if(isActive && totalDemand > 0) 
+				onNext(msg)
+			else
+				msg.nack()
+	}
+}
