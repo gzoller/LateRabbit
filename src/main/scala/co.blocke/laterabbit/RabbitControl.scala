@@ -1,10 +1,14 @@
 package co.blocke
 package laterabbit
 
+import Util.await
 import scala.concurrent.duration._
 import scala.collection.JavaConversions._
 import akka.actor._
 import com.thenewmotion.akka.rabbitmq._
+import akka.pattern.ask
+import akka.util.Timeout
+import com.rabbitmq.client._
 
 object RabbitControl {
 	val CONNECTION_ACTOR_NAME = "laterabbit_conn"
@@ -13,6 +17,7 @@ object RabbitControl {
 import RabbitControl._
 
 case class GetConnection()
+case class MessageCount(queueName:String)
 
 trait Binding
 case class DeclareQueue(name:String, durable:Boolean, exclusive:Boolean, autoDelete:Boolean, args:Map[String,Object] = Map.empty[String,Object]) extends Binding
@@ -48,11 +53,10 @@ class RabbitControl( connectionParams:ConnectionParams ) extends Actor with Stas
 
 		case cm:ChannelMessage =>
 			publishChannel ! cm
+
+		case mc:MessageCount => 
+			implicit val timeout:Timeout = 5.seconds
+			val mysender = sender
+			publishChannel ! ChannelMessage({ mysender ! _.queueDeclarePassive(mc.queueName).getMessageCount },false)
 	}
-
-	/*
-	Per-Queue Message TTL (dQ.args parameter, value in ms)
-	This extension determines for how long a message published to a queue can live before it is discarded by the server. The time-to-live is configured with the x-message-ttl argument to the arguments parameter of this method.
-	*/
-
 }

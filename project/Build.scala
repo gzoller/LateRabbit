@@ -14,6 +14,7 @@ object Build extends Build {
 		organization 				:= "co.blocke",
 		startYear 					:= Some(2015),
 		scalaVersion 				:= "2.11.7",
+		parallelExecution in Test 	:= false,
 		resolvers					++= Dependencies.resolutionRepos,
 		scalacOptions				:= Seq("-feature", "-deprecation", "-Xlint", "-encoding", "UTF8", "-unchecked", "-Xfatal-warnings"),
 		testOptions in Test += Tests.Argument("-oDF")
@@ -29,7 +30,7 @@ object Build extends Build {
 		// .settings(pubSettings: _*)
 		.settings(libraryDependencies ++=
 			compile(scalajack,akka_rabbitmq,akka_actor,akka_streams) ++
-			test(scalatest)
+			test(scalatest,akka_str_test)
 		)
 
 	// val pubSettings = Seq (
@@ -58,6 +59,7 @@ object Dependencies {
 	val akka_rabbitmq	= "com.thenewmotion.akka" 	%% "akka-rabbitmq" 	% "1.2.4"
 	val akka_actor		= "com.typesafe.akka"		%% "akka-actor"		% "2.4.0"
 	val akka_streams	= "com.typesafe.akka" 		%% "akka-stream-experimental"    % "1.0"
+	val akka_str_test	= "com.typesafe.akka" 		%% "akka-stream-testkit-experimental"    % "1.0"
 	val typesafe_config	= "com.typesafe"			% "config"			% "1.2.1"
 	val scalatest 		= "org.scalatest" 			%% "scalatest"		% "2.2.4"
 	val scalajack		= "co.blocke"				%% "scalajack"		% "4.4.1"
@@ -67,7 +69,6 @@ object Dependencies {
 	// val akka_cluster	= "com.typesafe.akka" 		%% "akka-cluster" 	% Akka
 	// val akka_contrib	= "com.typesafe.akka" 		%% "akka-contrib" 	% Akka
 	// val akka_tools 		= "com.typesafe.akka"		%% "akka-cluster-tools" % Akka
-	// val akka_str_test	= "com.typesafe.akka" 		%% "akka-stream-testkit-experimental"    % AkkaHttp
 	// val akka_http_core	= "com.typesafe.akka" 		%% "akka-http-core-experimental" % AkkaHttp
 	// val akka_http		= "com.typesafe.akka" 		%% "akka-http-experimental"      % AkkaHttp	
 }
