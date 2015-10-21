@@ -18,10 +18,11 @@ import RabbitControl._
 
 case class GetConnection()
 case class MessageCount(queueName:String)
+case class BindTopic(queueName:String, routingKey:String, exchange:String=topicExchangeName)
 
 trait Binding
-case class DeclareQueue(name:String, durable:Boolean, exclusive:Boolean, autoDelete:Boolean, args:Map[String,Object] = Map.empty[String,Object]) extends Binding
-case class DeclareTopic(exchange:String, routingKey:String, queue:DeclareQueue) extends Binding
+case class LateQueue(name:String, durable:Boolean, exclusive:Boolean, autoDelete:Boolean, args:Map[String,Object] = Map.empty[String,Object]) extends Binding
+case class LateTopic(routingKey:String, queue:LateQueue, exchange:String=topicExchangeName) extends Binding
 
 class RabbitControl( connectionParams:ConnectionParams ) extends Actor with Stash {
 
@@ -43,7 +44,8 @@ class RabbitControl( connectionParams:ConnectionParams ) extends Actor with Stas
 	}
 
  	def withChannel(publishChannel: ActorRef): Receive = {
-		case dQ:DeclareQueue => 
+ 		// Declare queue
+		case dQ:LateQueue => 
 			publishChannel ! ChannelMessage { _.queueDeclare(dQ.name,dQ.durable,dQ.exclusive,dQ.autoDelete,dQ.args) }
 // TODO: NEED A WAY TO ENSURE THIS TOOK HOLD BEFORE PROCESSING MORE MESSAGES!
 // Maybe an Ask w/reply to sender
@@ -53,6 +55,9 @@ class RabbitControl( connectionParams:ConnectionParams ) extends Actor with Stas
 
 		case cm:ChannelMessage =>
 			publishChannel ! cm
+
+		// Mainly for publishers to ensure binding exists, as consumers (RabbitSource) will auto-bind
+		case b:BindTopic => publishChannel ! ChannelMessage{ _.queueBind(b.queueName,b.exchange,b.routingKey) }
 
 		case mc:MessageCount => 
 			implicit val timeout:Timeout = 5.seconds

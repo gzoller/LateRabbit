@@ -8,8 +8,6 @@ package laterabbit
 import com.thenewmotion.akka.rabbitmq._
 import com.rabbitmq.client.Channel
 
-// class Message(qName:String, body:Array[Byte])
-
 trait Publisher {
 	val exchangeName: String
 	val routingKey: String
@@ -17,7 +15,7 @@ trait Publisher {
 }
 
 private [laterabbit] class PublisherImpl(val exchangeName: String, val routingKey: String) extends Publisher {
-  def apply(c: Channel, data: Array[Byte], properties: BasicProperties) =
+  def apply(c: Channel, data: Array[Byte], properties: BasicProperties) = 
     c.basicPublish(exchangeName, routingKey, properties, data)
 }
 
@@ -27,12 +25,8 @@ object Publisher {
 }
 
 object Message {
-	def apply[T](body: T, publisher: Publisher)(implicit marshaller: RabbitMarshaller[T]) = {
-		// val builder = builderWithProperties(MessageForPublicationLike.defaultProperties ++ properties)
-		// marshaller.setProperties(builder)
-		// newInstance(publisher, marshaller.marshall(body), builder.build)
+	def apply[T](body: T, publisher: Publisher)(implicit marshaller: RabbitMarshaller[T]) = 
 		ChannelMessage ({ ch => publisher.apply(ch,marshaller.marshall(body),null) }, dropIfNoChannel = false)
-	}
 
 	def topic[T](
 		message: T, 
