@@ -12,7 +12,7 @@ import akka.util.Timeout
 import com.thenewmotion.akka.rabbitmq._
 import com.rabbitmq.client._
 
-case class RabbitActor[T](binding:Binding, chan:ActorRef)(implicit marshaller: RabbitUnmarshaller[T]) extends ActorPublisher[QMessage[T]] {
+case class RabbitActor[T](binding:Binding, chan:ActorRef)(implicit system:ActorSystem, marshaller: RabbitUnmarshaller[T]) extends ActorPublisher[QMessage[T]] {
 
 	val queueName = binding match {
 		case tb : LateTopic =>  // For topics we have to bind to a queue
@@ -39,6 +39,10 @@ case class RabbitActor[T](binding:Binding, chan:ActorRef)(implicit marshaller: R
 			else
 				msg.nack()
 	}
+
+	override def postStop() {
+		system.stop(chan)
+	}
 }
 
 object RabbitSource {
@@ -46,7 +50,7 @@ object RabbitSource {
 		rabbitControl : ActorRef,
 		binding       : Binding,
 		channelQOS    : Int = 1
-	)(implicit marshaller: RabbitUnmarshaller[T]) = {
+	)(implicit system:ActorSystem, marshaller: RabbitUnmarshaller[T]) = {
 		// Declare bound queue
 		binding match {
 			case tb : LateTopic => rabbitControl ! tb.queue

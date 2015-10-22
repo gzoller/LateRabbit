@@ -26,7 +26,7 @@ case class ConnectionParams(
   // Replace the table of client properties that will be sent to the server during subsequent connection startups.
   clientProperties: Map[String, Object] = Map.empty[String, Object],
 
-  /**
+  /*
     Warning - setting this to 0 causes problems when connecting a cluster; if the first host is down, then further hosts may not be tried.
     */
   connectionTimeout: Int = 10000 /* 10 seconds */,
