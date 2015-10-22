@@ -12,14 +12,7 @@ import akka.util.Timeout
 import com.thenewmotion.akka.rabbitmq._
 import com.rabbitmq.client._
 
-case class RabbitActor[T](binding:Binding, chan:ActorRef)(implicit system:ActorSystem, marshaller: RabbitUnmarshaller[T]) extends ActorPublisher[QMessage[T]] {
-
-	val queueName = binding match {
-		case tb : LateTopic =>  // For topics we have to bind to a queue
-			chan ! ChannelMessage{ _.queueBind(tb.queue.name,tb.exchange,tb.routingKey) }
-			tb.queue.name
-		case qb : LateQueue => qb.name
-	}
+case class RabbitActor[T](queueName:String, chan:ActorRef)(implicit system:ActorSystem, marshaller: RabbitUnmarshaller[T]) extends ActorPublisher[QMessage[T]] {
 
 	// Register ourselves please
 	chan ! ChannelMessage{ ch => ch.basicConsume(queueName, false, new DefaultConsumer(ch) {
@@ -48,14 +41,11 @@ case class RabbitActor[T](binding:Binding, chan:ActorRef)(implicit system:ActorS
 object RabbitSource {
 	def apply[T](
 		rabbitControl : ActorRef,
-		binding       : Binding,
+		queue         : LateQueue,
 		channelQOS    : Int = 1
 	)(implicit system:ActorSystem, marshaller: RabbitUnmarshaller[T]) = {
 		// Declare bound queue
-		binding match {
-			case tb : LateTopic => rabbitControl ! tb.queue
-			case qb : LateQueue => rabbitControl ! qb
-		}
+		rabbitControl ! queue
 
 		// Get a new channel
 		implicit val timeout:Timeout = 5.seconds
@@ -68,7 +58,7 @@ object RabbitSource {
 				ref ! ChannelMessage { _.basicQos(channelQOS) }
 
 				// returns akka.streams.Source
-				Source.actorPublisher[QMessage[T]](Props( new RabbitActor[T](binding, ref) ))
+				Source.actorPublisher[QMessage[T]](Props( new RabbitActor[T](queue.name, ref) ))
 			case _ => 
 				throw new Exception("Can't create RabbitSource")
 		}
