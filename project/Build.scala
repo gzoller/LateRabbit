@@ -14,7 +14,7 @@ object Build extends Build {
 		organization 				:= "co.blocke",
 		startYear 					:= Some(2015),
 		scalaVersion 				:= "2.11.7",
-		version 					:= "0.1",
+		version 					:= "0.2",
 		parallelExecution in Test 	:= false,
 		scalacOptions				:= Seq("-feature", "-deprecation", "-Xlint", "-encoding", "UTF8", "-unchecked", "-Xfatal-warnings"),
 		testOptions in Test += Tests.Argument("-oDF")

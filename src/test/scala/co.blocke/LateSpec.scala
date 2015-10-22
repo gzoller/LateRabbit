@@ -103,11 +103,14 @@ class LateSpec extends FunSpec with Matchers with BeforeAndAfterAll with BeforeA
 				await(rc ? MessageCount("testQ")).asInstanceOf[Int] should be(0)
 			}
 			it("Topic consume works") {
-				val (sub,res) = RabbitSource(rc, LateTopic("pets.#",LateQueue("animals",true,false,false)))
+				val q = LateQueue("animals",true,false,false)
+				val (sub,res) = RabbitSource(rc, q)
 					.map( s => s ) // simulated "load"
 					.map( _.ack )
 					.toMat(Sink.fold(List.empty[Pet])(_ :+ _))(Keep.both)
 					.run
+				rc ! BindTopic(q.name,"pets.#")
+				Thread.sleep(1000)
 				rc ! Message.topic(Pet("Fido",7),"pets.like")
 				rc ! Message.topic(Pet("Fifi",1),"pets.dontlike")
 				rc ! Message.topic(Pet("Flipper",9),"fish.like")
