@@ -27,6 +27,7 @@ object Build extends Build {
 
 	lazy val root = (project in file("."))
 		.settings(basicSettings: _*)
+		.settings(pubSettings: _*)
 		.settings(libraryDependencies ++=
 			compile(scalajack,akka_rabbitmq,akka_actor,akka_streams) ++
 			test(scalatest,akka_str_test,rabbit_http)
