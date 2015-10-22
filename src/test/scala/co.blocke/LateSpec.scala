@@ -94,7 +94,7 @@ class LateSpec extends FunSpec with Matchers with BeforeAndAfterAll with BeforeA
 		}
 		describe("Consume Functionality") {
 			it("Queue consume works") {
-				RabbitSource[Pet](rc, LateQueue("testQ",true,false,false))
+				val rs = RabbitSource[Pet](rc, LateQueue("testQ",true,false,false))
 					.map( s => s ) // simulated "load"
 					.map( _.ack )
 					.runWith(TestSink.probe[Pet])
