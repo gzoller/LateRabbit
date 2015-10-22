@@ -29,9 +29,9 @@ class RabbitControl( connectionParams:ConnectionParams ) extends Actor with Stas
 	private val connectionFactory = new ClusterConnectionFactory
 	connectionParams.applyTo(connectionFactory)
 	val connectionActor = context.actorOf(ConnectionActor.props(connectionFactory),name = CONNECTION_ACTOR_NAME)
-	// val confirmedPublisher = context.actorOf(Props(new ConfirmedPublisherActor(connectionActor)),name = CONFIRMED_PUBLISHER_NAME)
 
 	override def preStart = connectionActor ! CreateChannel(ChannelActor.props(), Some("publisher"))
+	override def postStop: Unit = {} // Don't restart the child actors!!!
 
 	def receive = {
 		case ChannelCreated(ref) =>

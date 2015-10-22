@@ -12,7 +12,7 @@ import akka.util.Timeout
 import com.thenewmotion.akka.rabbitmq._
 import com.rabbitmq.client._
 
-case class RabbitActor[T](queueName:String, chan:ActorRef)(implicit marshaller: RabbitUnmarshaller[T]) extends ActorPublisher[QMessage[T]] {
+case class RabbitActor[T](queueName:String, chan:ActorRef)(implicit system:ActorSystem, marshaller: RabbitUnmarshaller[T]) extends ActorPublisher[QMessage[T]] {
 
 	// Register ourselves please
 	chan ! ChannelMessage{ ch => ch.basicConsume(queueName, false, new DefaultConsumer(ch) {
@@ -32,6 +32,10 @@ case class RabbitActor[T](queueName:String, chan:ActorRef)(implicit marshaller: 
 			else
 				msg.nack()
 	}
+
+	override def postStop() {
+		system.stop(chan)
+	}
 }
 
 object RabbitSource {
@@ -39,7 +43,7 @@ object RabbitSource {
 		rabbitControl : ActorRef,
 		queue         : LateQueue,
 		channelQOS    : Int = 1
-	)(implicit marshaller: RabbitUnmarshaller[T]) = {
+	)(implicit system:ActorSystem, marshaller: RabbitUnmarshaller[T]) = {
 		// Declare bound queue
 		rabbitControl ! queue
 

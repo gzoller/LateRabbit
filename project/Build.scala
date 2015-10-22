@@ -25,7 +25,7 @@ object Build extends Build {
 		shellPrompt := { s => Project.extract(s).currentProject.id + " > " }
 	}
 
-	lazy val root = (project in file("."))
+	lazy val root = Project("laterabbit", file("."))
 		.settings(basicSettings: _*)
 		.settings(pubSettings: _*)
 		.settings(libraryDependencies ++=
