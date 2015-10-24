@@ -62,6 +62,6 @@ class RabbitControl( connectionParams:ConnectionParams ) extends Actor with Stas
 		case mc:MessageCount => 
 			implicit val timeout:Timeout = 5.seconds
 			val mysender = sender
-			publishChannel ! ChannelMessage({ mysender ! _.queueDeclarePassive(mc.queueName).getMessageCount },false)
+			publishChannel ! ChannelMessage( {mysender ! _.queueDeclarePassive(mc.queueName).getMessageCount}, false)
 	}
 }
