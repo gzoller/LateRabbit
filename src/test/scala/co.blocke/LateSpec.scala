@@ -21,7 +21,7 @@ case class Pet(name:String, age:Int)
 class LateSpec extends FunSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach { 
 
 	println("===== NOTICE =====")
-	println("This test depends on Docker being active and gumbo/world image being available.")
+	println("This test depends on Docker being active and gzoller/world image being available.")
 
 	implicit var system       : ActorSystem       = null
 	implicit var materializer : ActorMaterializer = null
