@@ -23,6 +23,17 @@ case class ObjMarshaller[T]()(implicit tag: TypeTag[T]) extends RabbitMarshaller
     Json.fromJson[T](new String(value, charset map (Charset.forName) getOrElse utf8))
 }
 
+case class StringMarshaller() extends RabbitMarshaller[String] with RabbitUnmarshaller[String] {
+  val contentType = "text/plain"
+  private val encoding = "UTF-8"
+  protected val contentEncoding = Some(encoding)
+  private val utf8 = Charset.forName(encoding)
+
+  def marshall(value: String) = value.getBytes(utf8)
+  def unmarshall(value: Array[Byte], contentType: Option[String], charset: Option[String]) = 
+    new String(value, charset map (Charset.forName) getOrElse utf8)
+}
+
 /**
   This trait is used to serialize messages for publication; it
   configures a property builder and sets the appropriate headers

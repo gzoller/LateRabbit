@@ -52,7 +52,7 @@ class LateSpec extends FunSpec with Matchers with BeforeAndAfterAll with BeforeA
 
 	def worldWait( limit:Int = 30 ) = {
 		val pwd = System.getProperty("user.dir")
-		val worldId    = s"$pwd/src/test/resources/startWorld.sh".!!
+		val worldId = s"$pwd/src/test/resources/startWorld.sh".!!
 		rabbitPort = getDockerPort(worldId, 5672)
 		Thread.sleep(3000) // let the World come up and settle down
 		val apiPort = getDockerPort(worldId,15672)
