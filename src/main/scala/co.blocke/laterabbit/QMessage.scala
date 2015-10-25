@@ -21,7 +21,7 @@ case class QMessage[T](
 	){
 
 	def ack() = {
-		chan ! ChannelMessage { _.basicAck(deliveryTag, false) }
+		if( deliveryTag > 0L ) chan ! ChannelMessage { _.basicAck(deliveryTag, false) }
 		body // We return unwrapped body here because after ack/nack the QMessage wrapper is no longer useful.
 	}
 	def retry() = {
@@ -32,7 +32,7 @@ case class QMessage[T](
 		body
 	}
 	def nack() = {
-		chan ! ChannelMessage { _.basicReject(deliveryTag, false) }
+		if( deliveryTag > 0L ) chan ! ChannelMessage { _.basicReject(deliveryTag, false) }
 		msgCB.map( cb => Future{ cb.nack(metaTags) } )
 		body
 	}
