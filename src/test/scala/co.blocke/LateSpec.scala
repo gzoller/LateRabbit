@@ -141,13 +141,13 @@ class LateSpec extends FunSpec with Matchers with BeforeAndAfterAll with BeforeA
 				var nackMsg = ""
 				var retryMsg = ""
 				def cb = new MessageCB {
-					def retry(p:List[String]):Unit = retryMsg = s"Retry Boom: $p"
-					def nack(p:List[String]):Unit  = nackMsg = s"Nack Boom: $p"
+					def retry(reason:String,metaTags:List[String]):Unit = retryMsg = s"Retry Boom: $metaTags"
+					def nack(reason:String,metaTags:List[String]):Unit  = nackMsg = s"Nack Boom: $metaTags"
 				}
 
 				val (sub,res) = RabbitSource[Pet](rc, LateQueue("testQ3",true,false,false))
 					.map( m => m.copy(metaTags=List("a","b"),msgCB=Some(cb) ) )
-					.map( m => if( m.body.age == 7 ) m.retry else m.ack )
+					.map( m => if( m.body.age == 7 ) m.retry("some reason") else m.ack )
 					.toMat(Sink.fold(List.empty[Pet])(_ :+ _))(Keep.both)
 					.run
 				Thread.sleep(1000)
