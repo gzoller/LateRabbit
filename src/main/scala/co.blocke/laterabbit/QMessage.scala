@@ -7,8 +7,8 @@ import akka.actor.ActorRef
 import com.thenewmotion.akka.rabbitmq.ChannelMessage
 
 trait MessageCB {
-	def retry(p:List[String]):Unit
-	def nack(p:List[String]):Unit
+	def retry(reason:String,metaTags:List[String]):Unit
+	def nack(reason:String,metaTags:List[String]):Unit
 }
 
 case class QMessage[T](
@@ -24,16 +24,16 @@ case class QMessage[T](
 		if( deliveryTag > 0L ) chan ! ChannelMessage { _.basicAck(deliveryTag, false) }
 		body // We return unwrapped body here because after ack/nack the QMessage wrapper is no longer useful.
 	}
-	def retry() = {
+	def retry(reason:String) = {
 		if( !isRedeliver )
 			chan ! ChannelMessage { _.basicReject(deliveryTag, true) }
 		else
-			msgCB.map( cb => Future{ nack(); cb.retry(metaTags) } )
+			msgCB.map( cb => Future{ nack(reason); cb.retry(reason,metaTags) } )
 		body
 	}
-	def nack() = {
+	def nack(reason:String) = {
 		if( deliveryTag > 0L ) chan ! ChannelMessage { _.basicReject(deliveryTag, false) }
-		msgCB.map( cb => Future{ cb.nack(metaTags) } )
+		msgCB.map( cb => Future{ cb.nack(reason,metaTags) } )
 		body
 	}
 
