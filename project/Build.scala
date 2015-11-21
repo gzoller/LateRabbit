@@ -14,7 +14,7 @@ object Build extends Build {
 		organization 				:= "co.blocke",
 		startYear 					:= Some(2015),
 		scalaVersion 				:= "2.11.7",
-		version 					:= "0.6",
+		version 					:= "0.7",
 		parallelExecution in Test 	:= false,
 		scalacOptions				:= Seq("-feature", "-deprecation", "-Xlint", "-encoding", "UTF8", "-unchecked", "-Xfatal-warnings"),
 		testOptions in Test += Tests.Argument("-oDF")
@@ -52,6 +52,6 @@ object Dependencies {
 	val akka_streams	= "com.typesafe.akka" 		%% "akka-stream-experimental"    % "1.0"
 	val akka_str_test	= "com.typesafe.akka" 		%% "akka-stream-testkit-experimental"    % "1.0"
 	val scalatest 		= "org.scalatest" 			%% "scalatest"		% "2.2.4"
-	val scalajack		= "co.blocke"				%% "scalajack"		% "4.4.1"
+	val scalajack		= "co.blocke"				%% "scalajack"		% "4.4.2"
 	val rabbit_http     = "com.rabbitmq" 			% "http-client" 	% "1.0.0.RELEASE"
 }
