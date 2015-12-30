@@ -11,7 +11,7 @@ trait MessageCB {
 	def nack(reason:String,metaTags:List[String]):Unit
 }
 
-case class QMessage[T](
+case class QMessage[+T](
 	deliveryTag: Long, 
 	body: T, 
 	chan:ActorRef, 
