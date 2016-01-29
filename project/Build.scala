@@ -14,7 +14,7 @@ object Build extends Build {
 		organization 				:= "co.blocke",
 		startYear 					:= Some(2015),
 		scalaVersion 				:= "2.11.7",
-		version 					:= "0.8",
+		version 					:= "0.9",
 		parallelExecution in Test 	:= false,
 		scalacOptions				:= Seq("-feature", "-deprecation", "-Xlint", "-encoding", "UTF8", "-unchecked", "-Xfatal-warnings"),
 		testOptions in Test += Tests.Argument("-oDF")
@@ -48,10 +48,10 @@ object Dependencies {
 	def test      (deps: ModuleID*): Seq[ModuleID] = deps map (_ % "test") 
 
 	val akka_rabbitmq	= "com.thenewmotion.akka" 	%% "akka-rabbitmq" 	% "1.2.4"
-	val akka_actor		= "com.typesafe.akka"		%% "akka-actor"		% "2.4.0"
-	val akka_streams	= "com.typesafe.akka" 		%% "akka-stream-experimental"    % "1.0"
-	val akka_str_test	= "com.typesafe.akka" 		%% "akka-stream-testkit-experimental"    % "1.0"
+	val akka_actor		= "com.typesafe.akka"		%% "akka-actor"		% "2.4.2-RC1"
+	val akka_streams	= "com.typesafe.akka" 		%% "akka-stream"    % "2.4.2-RC1"
+	val akka_str_test	= "com.typesafe.akka" 		%% "akka-stream-testkit"    % "2.4.2-RC1"
 	val scalatest 		= "org.scalatest" 			%% "scalatest"		% "2.2.4"
-	val scalajack		= "co.blocke"				%% "scalajack"		% "4.4.2"
+	val scalajack		= "co.blocke"				%% "scalajack"		% "4.6.0"
 	val rabbit_http     = "com.rabbitmq" 			% "http-client" 	% "1.0.0.RELEASE"
 }
